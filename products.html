@@ -1,0 +1,209 @@
+{% extends "base.html" %}
+
+{% block title %}Products - Shop Genuine Mobile Accessories{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <h1 class="display-5 mb-2">Shop Products</h1>
+            <p class="text-muted">Browse our collection of genuine mobile products</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Sidebar Filters -->
+        <div class="col-md-3 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Filters</h5>
+                </div>
+                <div class="card-body">
+                    <form id="filterForm">
+                        <!-- Search -->
+                        <div class="mb-3">
+                            <label class="form-label" for="search">Search</label>
+                            <input type="text" class="form-control" id="search" placeholder="Search products...">
+                        </div>
+
+                        <!-- Category Filter -->
+                        <div class="mb-3">
+                            <label class="form-label">Category</label>
+                            <select class="form-select" id="filter-category">
+                                <option value="">All Categories</option>
+                                <option value="smartphones">Smartphones</option>
+                                <option value="chargers">Chargers</option>
+                                <option value="earphones">Earphones</option>
+                                <option value="power-banks">Power Banks</option>
+                                <option value="mobile-covers">Mobile Covers</option>
+                                <option value="screen-protectors">Screen Protectors</option>
+                                <option value="data-cables">Data Cables</option>
+                                <option value="bluetooth-speakers">Bluetooth Speakers</option>
+                            </select>
+                        </div>
+
+                        <!-- Brand Filter -->
+                        <div class="mb-3">
+                            <label class="form-label">Brand</label>
+                            <select class="form-select" id="filter-brand">
+                                <option value="">All Brands</option>
+                                <option value="apple">Apple</option>
+                                <option value="samsung">Samsung</option>
+                                <option value="xiaomi">Xiaomi</option>
+                                <option value="realme">Realme</option>
+                                <option value="oneplus">OnePlus</option>
+                                <option value="vivo">Vivo</option>
+                                <option value="oppo">Oppo</option>
+                            </select>
+                        </div>
+
+                        <!-- Price Range -->
+                        <div class="mb-3">
+                            <label class="form-label">Price Range</label>
+                            <div class="row">
+                                <div class="col-6">
+                                    <input type="number" class="form-control form-control-sm" id="minPrice" placeholder="Min">
+                                </div>
+                                <div class="col-6">
+                                    <input type="number" class="form-control form-control-sm" id="maxPrice" placeholder="Max">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Sort -->
+                        <div class="mb-3">
+                            <label class="form-label">Sort By</label>
+                            <select class="form-select" id="filter-sort">
+                                <option value="popular">Most Popular</option>
+                                <option value="newest">Newest</option>
+                                <option value="price_low">Price: Low to High</option>
+                                <option value="price_high">Price: High to Low</option>
+                            </select>
+                        </div>
+
+                        <button type="button" class="btn btn-primary w-100" onclick="filterProducts()">
+                            <i class="fas fa-filter"></i> Apply Filters
+                        </button>
+                        <button type="reset" class="btn btn-outline-secondary w-100 mt-2">
+                            <i class="fas fa-redo"></i> Reset
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Products Grid -->
+        <div class="col-md-9">
+            {% if products %}
+                <div class="product-grid">
+                    {% for product in products %}
+                        <div class="product-card" data-product="{{ product.id }}">
+                            <div class="product-image">
+                                {% if product.images %}
+                                    <img src="{{ product.images[0].image_url }}" alt="{{ product.name }}" loading="lazy">
+                                {% else %}
+                                    <div style="background: #f0f0f0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
+                                        <i class="fas fa-image" style="font-size: 3rem; color: #ccc;"></i>
+                                    </div>
+                                {% endif %}
+                                
+                                {% if product.is_trending %}
+                                    <span class="product-badge trending">🔥 TRENDING</span>
+                                {% elif product.discount_percent > 0 %}
+                                    <span class="product-badge">-{{ product.discount_percent }}%</span>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="product-info">
+                                <h3 class="product-name">{{ product.name }}</h3>
+                                
+                                <div class="product-rating">
+                                    <span class="stars">
+                                        {% for i in range(5) %}
+                                            {% if i < product.rating|int %}
+                                                <i class="fas fa-star"></i>
+                                            {% else %}
+                                                <i class="far fa-star"></i>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </span>
+                                    <span>({{ product.review_count }})</span>
+                                </div>
+                                
+                                <div class="product-price">
+                                    <span class="price-current">₹{{ product.discounted_price }}</span>
+                                    {% if product.discount_percent > 0 %}
+                                        <span class="price-original">₹{{ product.price }}</span>
+                                        <span class="price-discount">Save ₹{{ product.savings }}</span>
+                                    {% endif %}
+                                </div>
+                                
+                                {% if product.stock_quantity > 0 %}
+                                    <div class="stock-status in-stock">
+                                        ✓ In Stock
+                                        {% if product.stock_quantity < 5 %}
+                                            <span class="text-danger ms-2">Only {{ product.stock_quantity }} left!</span>
+                                        {% endif %}
+                                    </div>
+                                {% else %}
+                                    <div class="stock-status out-of-stock">Out of Stock</div>
+                                {% endif %}
+                                
+                                <div class="product-actions">
+                                    <button class="btn-add-cart" onclick="addToCart('{{ product.id }}')">
+                                        <i class="fas fa-cart-plus me-1"></i> Add
+                                    </button>
+                                    <a href="/product/{{ product.slug }}" class="btn-buy-now text-decoration-none">
+                                        <i class="fas fa-shopping-bag me-1"></i> Buy
+                                    </a>
+                                    <button class="btn-wishlist" onclick="addToWishlist('{{ product.id }}')">
+                                        <i class="fas fa-heart"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Pagination -->
+                {% if total_pages > 1 %}
+                    <nav aria-label="Page navigation" class="mt-4">
+                        <ul class="pagination justify-content-center">
+                            {% if current_page > 1 %}
+                                <li class="page-item">
+                                    <a class="page-link" href="/products?page=1">First</a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="/products?page={{ current_page - 1 }}">Previous</a>
+                                </li>
+                            {% endif %}
+
+                            {% for page in range(max(1, current_page - 2), min(total_pages + 1, current_page + 3)) %}
+                                <li class="page-item {% if page == current_page %}active{% endif %}">
+                                    <a class="page-link" href="/products?page={{ page }}">{{ page }}</a>
+                                </li>
+                            {% endfor %}
+
+                            {% if current_page < total_pages %}
+                                <li class="page-item">
+                                    <a class="page-link" href="/products?page={{ current_page + 1 }}">Next</a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="/products?page={{ total_pages }}">Last</a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                {% endif %}
+            {% else %}
+                <div class="alert alert-info text-center py-5">
+                    <i class="fas fa-search fa-3x mb-3"></i>
+                    <h4>No Products Found</h4>
+                    <p>Try adjusting your filters or search terms</p>
+                    <a href="/products" class="btn btn-primary">View All Products</a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,187 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard - DEV Mobile & Services{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <h1 class="display-5">
+                <i class="fas fa-cog text-warning"></i> Admin Dashboard
+            </h1>
+        </div>
+    </div>
+
+    <!-- Key Metrics -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="card text-white bg-primary">
+                <div class="card-body">
+                    <h6 class="card-title">Total Products</h6>
+                    <h2 class="card-text">{{ total_products }}</h2>
+                    <small><a href="/admin/products" class="text-white">Manage Products</a></small>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-3">
+            <div class="card text-white bg-success">
+                <div class="card-body">
+                    <h6 class="card-title">Total Orders</h6>
+                    <h2 class="card-text">{{ total_orders }}</h2>
+                    <small><a href="/admin/orders" class="text-white">View Orders</a></small>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-3">
+            <div class="card text-white bg-info">
+                <div class="card-body">
+                    <h6 class="card-title">Total Users</h6>
+                    <h2 class="card-text">{{ total_users }}</h2>
+                    <small><a href="#" class="text-white">View Users</a></small>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-3">
+            <div class="card text-white bg-warning">
+                <div class="card-body">
+                    <h6 class="card-title">Total Revenue</h6>
+                    <h2 class="card-text">₹{{ "%.0f"|format(total_revenue) }}</h2>
+                    <small><a href="#" class="text-white">Revenue Report</a></small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Menu -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="btn-group" role="group">
+                <a href="/admin/dashboard" class="btn btn-primary">
+                    <i class="fas fa-chart-line"></i> Dashboard
+                </a>
+                <a href="/admin/products" class="btn btn-primary">
+                    <i class="fas fa-boxes"></i> Products
+                </a>
+                <a href="/admin/categories" class="btn btn-primary">
+                    <i class="fas fa-list"></i> Categories
+                </a>
+                <a href="/admin/orders" class="btn btn-primary">
+                    <i class="fas fa-receipt"></i> Orders
+                </a>
+                <a href="/" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Back to Site
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Orders -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Recent Orders</h5>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>Order #</th>
+                                <th>Customer</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                                <th>Date</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for order in recent_orders %}
+                                <tr>
+                                    <td><strong>{{ order.order_number }}</strong></td>
+                                    <td>{{ order.user.username }}</td>
+                                    <td><strong>₹{{ "%.2f"|format(order.total_amount) }}</strong></td>
+                                    <td>
+                                        <span class="badge bg-{{ 'success' if order.status == 'delivered' else 'warning' if order.status == 'shipped' else 'danger' if order.status == 'cancelled' else 'info' }}">
+                                            {{ order.status|upper }}
+                                        </span>
+                                    </td>
+                                    <td>{{ order.created_at.strftime('%d %b %Y') }}</td>
+                                    <td>
+                                        <a href="#" class="btn btn-sm btn-info">View</a>
+                                    </td>
+                                </tr>
+                            {% else %}
+                                <tr>
+                                    <td colspan="6" class="text-center text-muted">No orders yet</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Service Bookings -->
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Recent Service Bookings</h5>
+                </div>
+                <div class="list-group list-group-flush">
+                    {% for booking in recent_bookings %}
+                        <div class="list-group-item">
+                            <h6 class="mb-1">{{ booking.booking_number }}</h6>
+                            <p class="mb-1 text-sm">
+                                <strong>Service:</strong> {{ booking.service.name }}
+                            </p>
+                            <p class="mb-1 text-sm">
+                                <strong>Customer:</strong> {{ booking.user.username }}
+                            </p>
+                            <span class="badge bg-{{ 'success' if booking.status == 'completed' else 'warning' if booking.status == 'confirmed' else 'info' }}">
+                                {{ booking.status|upper }}
+                            </span>
+                        </div>
+                    {% else %}
+                        <div class="list-group-item text-center text-muted py-3">
+                            No bookings yet
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row">
+        <div class="col-md-4 mb-3">
+            <a href="/admin/product/create" class="card text-decoration-none text-dark">
+                <div class="card-body text-center">
+                    <i class="fas fa-plus-circle fa-2x text-success mb-2"></i>
+                    <h6 class="card-title">Add New Product</h6>
+                </div>
+            </a>
+        </div>
+        
+        <div class="col-md-4 mb-3">
+            <a href="/admin/products" class="card text-decoration-none text-dark">
+                <div class="card-body text-center">
+                    <i class="fas fa-edit fa-2x text-primary mb-2"></i>
+                    <h6 class="card-title">Manage Products</h6>
+                </div>
+            </a>
+        </div>
+        
+        <div class="col-md-4 mb-3">
+            <a href="/admin/orders" class="card text-decoration-none text-dark">
+                <div class="card-body text-center">
+                    <i class="fas fa-box fa-2x text-warning mb-2"></i>
+                    <h6 class="card-title">View All Orders</h6>
+                </div>
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

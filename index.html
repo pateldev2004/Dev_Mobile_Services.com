@@ -1,0 +1,363 @@
+{% extends "base.html" %}
+
+{% block title %}Home - DEV Mobile & Services | Shop & Book Services{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container">
+        <div class="hero-content">
+            <h1 class="display-4">Your Trusted Mobile & Tech Partner</h1>
+            <p class="lead">Shop Genuine Products Online | Book Expert Repair Services</p>
+            
+            <div class="mt-4">
+                <a href="/products" class="btn btn-light btn-lg me-3">
+                    <i class="fas fa-shopping-cart me-2"></i> Shop Now
+                </a>
+                <a href="/services" class="btn btn-outline-light btn-lg">
+                    <i class="fas fa-tools me-2"></i> Book a Service
+                </a>
+            </div>
+            
+            <div class="trust-badges mt-5">
+                <div class="badge-item">
+                    <i class="fas fa-check-circle"></i>
+                    <p class="mt-2">Genuine Products</p>
+                </div>
+                <div class="badge-item">
+                    <i class="fas fa-tag"></i>
+                    <p class="mt-2">Best Prices</p>
+                </div>
+                <div class="badge-item">
+                    <i class="fas fa-bolt"></i>
+                    <p class="mt-2">Fast Repair</p>
+                </div>
+                <div class="badge-item">
+                    <i class="fas fa-star"></i>
+                    <p class="mt-2">4.8+ Rating</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Featured Products -->
+<section class="py-5">
+    <div class="container">
+        <h2 class="section-title mb-4">Featured Products</h2>
+        
+        {% if featured_products %}
+            <div class="product-grid">
+                {% for product in featured_products %}
+                    <div class="product-card" data-product="{{ product.id }}">
+                        <div class="product-image">
+                            {% if product.images %}
+                                <img src="{{ product.images[0].image_url }}" alt="{{ product.name }}" loading="lazy">
+                            {% else %}
+                                <div style="background: #f0f0f0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
+                                    <i class="fas fa-image" style="font-size: 3rem; color: #ccc;"></i>
+                                </div>
+                            {% endif %}
+                            
+                            {% if product.is_trending %}
+                                <span class="product-badge trending">🔥 TRENDING</span>
+                            {% elif product.discount_percent > 0 %}
+                                <span class="product-badge">-{{ product.discount_percent }}%</span>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="product-info">
+                            <h3 class="product-name">{{ product.name }}</h3>
+                            
+                            <div class="product-rating">
+                                <span class="stars">
+                                    {% for i in range(5) %}
+                                        {% if i < product.rating|int %}
+                                            <i class="fas fa-star"></i>
+                                        {% else %}
+                                            <i class="far fa-star"></i>
+                                        {% endif %}
+                                    {% endfor %}
+                                </span>
+                                <span>({{ product.review_count }} reviews)</span>
+                            </div>
+                            
+                            <div class="product-price">
+                                <span class="price-current">₹{{ product.discounted_price }}</span>
+                                {% if product.discount_percent > 0 %}
+                                    <span class="price-original">₹{{ product.price }}</span>
+                                    <span class="price-discount">Save ₹{{ product.savings }}</span>
+                                {% endif %}
+                            </div>
+                            
+                            {% if product.stock_quantity > 0 %}
+                                <div class="stock-status in-stock">
+                                    ✓ In Stock
+                                    {% if product.stock_quantity < 5 %}
+                                        <span class="text-danger ms-2">Only {{ product.stock_quantity }} left!</span>
+                                    {% endif %}
+                                </div>
+                            {% else %}
+                                <div class="stock-status out-of-stock">Out of Stock</div>
+                            {% endif %}
+                            
+                            <div class="product-actions">
+                                <button class="btn-add-cart" onclick="addToCart('{{ product.id }}')">
+                                    <i class="fas fa-cart-plus me-1"></i> Add
+                                </button>
+                                <a href="/product/{{ product.slug }}" class="btn-buy-now text-decoration-none">
+                                    <i class="fas fa-shopping-bag me-1"></i> Buy
+                                </a>
+                                <button class="btn-wishlist" onclick="addToWishlist('{{ product.id }}')">
+                                    <i class="fas fa-heart"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="alert alert-info">No featured products available</div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- Trending Products Section -->
+{% if trending_products %}
+    <section class="py-5 bg-light">
+        <div class="container">
+            <h2 class="section-title mb-4">🔥 Trending Now</h2>
+            
+            <div class="product-grid">
+                {% for product in trending_products %}
+                    <div class="product-card" data-product="{{ product.id }}">
+                        <div class="product-image">
+                            {% if product.images %}
+                                <img src="{{ product.images[0].image_url }}" alt="{{ product.name }}" loading="lazy">
+                            {% else %}
+                                <div style="background: #f0f0f0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
+                                    <i class="fas fa-image" style="font-size: 3rem; color: #ccc;"></i>
+                                </div>
+                            {% endif %}
+                            <span class="product-badge trending">🔥 TRENDING</span>
+                        </div>
+                        
+                        <div class="product-info">
+                            <h3 class="product-name">{{ product.name }}</h3>
+                            
+                            <div class="product-rating">
+                                <span class="stars">
+                                    {% for i in range(5) %}
+                                        {% if i < product.rating|int %}
+                                            <i class="fas fa-star"></i>
+                                        {% else %}
+                                            <i class="far fa-star"></i>
+                                        {% endif %}
+                                    {% endfor %}
+                                </span>
+                                <span>({{ product.review_count }})</span>
+                            </div>
+                            
+                            <div class="product-price">
+                                <span class="price-current">₹{{ product.discounted_price }}</span>
+                                {% if product.discount_percent > 0 %}
+                                    <span class="price-original">₹{{ product.price }}</span>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="product-actions">
+                                <button class="btn-add-cart" onclick="addToCart('{{ product.id }}')">
+                                    <i class="fas fa-cart-plus"></i> Add
+                                </button>
+                                <a href="/product/{{ product.slug }}" class="btn-buy-now text-decoration-none">
+                                    <i class="fas fa-shopping-bag"></i> View
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+{% endif %}
+
+<!-- Limited Stock Products -->
+{% if limited_products %}
+    <section class="py-5">
+        <div class="container">
+            <h2 class="section-title mb-4">⏳ Limited Stock - Special Offers</h2>
+            
+            <div class="product-grid">
+                {% for product in limited_products %}
+                    <div class="product-card" data-product="{{ product.id }}">
+                        <div class="product-image">
+                            {% if product.images %}
+                                <img src="{{ product.images[0].image_url }}" alt="{{ product.name }}" loading="lazy">
+                            {% else %}
+                                <div style="background: #f0f0f0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
+                                    <i class="fas fa-image" style="font-size: 3rem; color: #ccc;"></i>
+                                </div>
+                            {% endif %}
+                            <span class="product-badge limited">⏳ LIMITED</span>
+                        </div>
+                        
+                        <div class="product-info">
+                            <h3 class="product-name">{{ product.name }}</h3>
+                            
+                            <div class="product-rating">
+                                <span class="stars">
+                                    {% for i in range(5) %}
+                                        {% if i < product.rating|int %}
+                                            <i class="fas fa-star"></i>
+                                        {% else %}
+                                            <i class="far fa-star"></i>
+                                        {% endif %}
+                                    {% endfor %}
+                                </span>
+                            </div>
+                            
+                            <div class="product-price">
+                                <span class="price-current">₹{{ product.discounted_price }}</span>
+                                {% if product.discount_percent > 0 %}
+                                    <span class="price-original">₹{{ product.price }}</span>
+                                {% endif %}
+                            </div>
+                            
+                            {% if product.stock_quantity > 0 %}
+                                <div class="stock-status text-danger fw-bold">
+                                    Only {{ product.stock_quantity }} left!
+                                </div>
+                            {% else %}
+                                <div class="stock-status out-of-stock">Out of Stock</div>
+                            {% endif %}
+                            
+                            <div class="product-actions">
+                                <button class="btn-add-cart" onclick="addToCart('{{ product.id }}')">
+                                    <i class="fas fa-bolt me-1"></i> Quick Buy
+                                </button>
+                                <a href="/product/{{ product.slug }}" class="btn-buy-now text-decoration-none">
+                                    <i class="fas fa-eye"></i> Details
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+{% endif %}
+
+<!-- Brands Section -->
+{% if brands %}
+    <section class="py-5 bg-light">
+        <div class="container">
+            <h2 class="section-title mb-4">Authorized & Genuine Brands</h2>
+            
+            <div class="row">
+                {% for brand in brands %}
+                    <div class="col-md-3 col-sm-4 col-6 text-center mb-4">
+                        <a href="/products?brand={{ brand.slug }}" class="text-decoration-none">
+                            <div class="p-3 border rounded transition">
+                                {% if brand.logo_url %}
+                                    <img src="{{ brand.logo_url }}" alt="{{ brand.name }}" height="50" class="mb-2">
+                                {% else %}
+                                    <div style="height: 50px; display: flex; align-items: center; justify-content: center;">
+                                        <strong>{{ brand.name }}</strong>
+                                    </div>
+                                {% endif %}
+                                <p class="text-dark">{{ brand.name }}</p>
+                            </div>
+                        </a>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+{% endif %}
+
+<!-- Services Preview -->
+<section class="py-5">
+    <div class="container">
+        <h2 class="section-title mb-4">Our Expert Services</h2>
+        
+        <div class="row">
+            <div class="col-md-4 mb-3">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-tools fa-3x text-primary mb-3"></i>
+                        <h5 class="card-title">Professional Repair</h5>
+                        <p class="card-text">Expert technicians ready to fix your devices with genuine parts</p>
+                        <a href="/services" class="btn btn-sm btn-primary">Learn More</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4 mb-3">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-mobile-alt fa-3x text-primary mb-3"></i>
+                        <h5 class="card-title">Quick Pickup</h5>
+                        <p class="card-text">We pickup your device from your doorstep for repairs</p>
+                        <a href="/services" class="btn btn-sm btn-primary">Learn More</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4 mb-3">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-clock fa-3x text-primary mb-3"></i>
+                        <h5 class="card-title">Same Day Service</h5>
+                        <p class="card-text">Get your device repaired and delivered the same day</p>
+                        <a href="/services" class="btn btn-sm btn-primary">Learn More</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="py-5 bg-dark text-white">
+    <div class="container text-center">
+        <h2 class="mb-3">Ready to Shop or Book a Service?</h2>
+        <p class="lead mb-4">Get exclusive first-time user discounts and fast delivery options</p>
+        
+        <div>
+            <a href="/products" class="btn btn-primary btn-lg me-3">
+                <i class="fas fa-shopping-cart me-2"></i> Start Shopping
+            </a>
+            <a href="/services" class="btn btn-outline-light btn-lg">
+                <i class="fas fa-phone me-2"></i> Call Us: +91 98765 43210
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Testimonials (Placeholder) -->
+<section class="py-5">
+    <div class="container">
+        <h2 class="section-title mb-4">What Customers Say</h2>
+        
+        <div class="row">
+            {% for i in range(3) %}
+                <div class="col-md-4 mb-3">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <i class="fas fa-star text-warning"></i>
+                                <i class="fas fa-star text-warning"></i>
+                                <i class="fas fa-star text-warning"></i>
+                                <i class="fas fa-star text-warning"></i>
+                                <i class="fas fa-star text-warning"></i>
+                            </div>
+                            <p class="card-text">"Great service and authentic products. Highly recommended!"</p>
+                            <p class="text-muted small">- Customer {{ i + 1 }}</p>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}

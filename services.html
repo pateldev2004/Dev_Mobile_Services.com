@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+
+{% block title %}Services - Book Expert Repair & Maintenance{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row mb-5">
+        <div class="col-md-12">
+            <h1 class="display-5 mb-2">Professional Mobile & Tech Services</h1>
+            <p class="lead text-muted">Expert technicians ready to fix your devices with genuine parts</p>
+        </div>
+    </div>
+
+    {% if services %}
+        <div class="row">
+            {% for service in services %}
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <div>
+                                    <h3 class="card-title">
+                                        <i class="{{ service.icon }} text-primary me-2"></i>{{ service.name }}
+                                    </h3>
+                                </div>
+                                <span class="badge bg-success">₹{{ service.price }}</span>
+                            </div>
+                            
+                            <p class="card-text text-muted">{{ service.description }}</p>
+                            
+                            <div class="mb-3">
+                                <div class="mb-2">
+                                    <strong>⏱️ Duration:</strong> {{ service.duration_minutes }} minutes
+                                </div>
+                                <div>
+                                    <strong>⭐ Rating:</strong> 
+                                    <span class="text-warning">
+                                        {% for i in range(5) %}
+                                            {% if i < service.rating|int %}
+                                                <i class="fas fa-star"></i>
+                                            {% else %}
+                                                <i class="far fa-star"></i>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </span>
+                                    ({{ service.review_count }} reviews)
+                                </div>
+                            </div>
+                            
+                            <div class="alert alert-info alert-sm mb-3">
+                                <small>
+                                    <i class="fas fa-check-circle"></i> Free Pickup & Delivery<br>
+                                    <i class="fas fa-check-circle"></i> Genuine Parts Only<br>
+                                    <i class="fas fa-check-circle"></i> 30-Day Warranty
+                                </small>
+                            </div>
+                            
+                            <a href="/service/{{ service.slug }}/book" class="btn btn-primary w-100">
+                                <i class="fas fa-calendar-alt"></i> Book Now
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-info text-center py-5">
+            <i class="fas fa-tools fa-3x mb-3"></i>
+            <h4>Services Coming Soon</h4>
+            <p>We're preparing our service offerings for you</p>
+        </div>
+    {% endif %}
+
+    <!-- Why Choose Us -->
+    <section class="mt-5 pt-5 border-top">
+        <h2 class="section-title mb-4">Why Choose Our Services?</h2>
+        
+        <div class="row">
+            <div class="col-md-4 mb-4">
+                <div class="text-center">
+                    <i class="fas fa-medal fa-3x text-primary mb-3"></i>
+                    <h5>Expert Technicians</h5>
+                    <p>Certified professionals with years of experience</p>
+                </div>
+            </div>
+            
+            <div class="col-md-4 mb-4">
+                <div class="text-center">
+                    <i class="fas fa-shield-alt fa-3x text-primary mb-3"></i>
+                    <h5>Genuine Parts</h5>
+                    <p>We use only original and authentic spare parts</p>
+                </div>
+            </div>
+            
+            <div class="col-md-4 mb-4">
+                <div class="text-center">
+                    <i class="fas fa-bolt fa-3x text-primary mb-3"></i>
+                    <h5>Fast Service</h5>
+                    <p>Same-day service available for most repairs</p>
+                </div>
+            </div>
+            
+            <div class="col-md-4 mb-4">
+                <div class="text-center">
+                    <i class="fas fa-headset fa-3x text-primary mb-3"></i>
+                    <h5>24/7 Support</h5>
+                    <p>Customer support available round the clock</p>
+                </div>
+            </div>
+            
+            <div class="col-md-4 mb-4">
+                <div class="text-center">
+                    <i class="fas fa-map-marked-alt fa-3x text-primary mb-3"></i>
+                    <h5>Free Pickup</h5>
+                    <p>We pickup your device from your doorstep</p>
+                </div>
+            </div>
+            
+            <div class="col-md-4 mb-4">
+                <div class="text-center">
+                    <i class="fas fa-certificate fa-3x text-primary mb-3"></i>
+                    <h5>Warranty</h5>
+                    <p>30-day warranty on all repairs and parts</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="mt-5 pt-5 border-top">
+        <div class="bg-dark text-white p-5 rounded text-center">
+            <h3 class="mb-3">Need Immediate Assistance?</h3>
+            <p class="lead mb-4">Call us now or chat with our support team</p>
+            
+            <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+                <a href="tel:+919876543210" class="btn btn-primary btn-lg">
+                    <i class="fas fa-phone"></i> Call Now
+                </a>
+                <a href="https://wa.me/919876543210" target="_blank" class="btn btn-success btn-lg">
+                    <i class="fab fa-whatsapp"></i> WhatsApp
+                </a>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}

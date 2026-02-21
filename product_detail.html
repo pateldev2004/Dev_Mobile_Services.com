@@ -1,0 +1,279 @@
+{% extends "base.html" %}
+
+{% block title %}{{ product.name }} - DEV Mobile & Services{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">Home</a></li>
+            <li class="breadcrumb-item"><a href="/products">Products</a></li>
+            <li class="breadcrumb-item"><a href="/products?category={{ product.category.slug }}">{{ product.category.name }}</a></li>
+            <li class="breadcrumb-item active">{{ product.name }}</li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        <!-- Product Images -->
+        <div class="col-md-5 mb-4">
+            <div class="card border-0">
+                <div class="card-body p-0">
+                    <div class="product-image" style="height: 400px; background: #f0f0f0; display: flex; align-items: center; justify-content: center;">
+                        {% if product.images %}
+                            <img id="mainImage" src="{{ product.images[0].image_url }}" alt="{{ product.name }}" style="max-height: 100%; max-width: 100%; object-fit: contain;">
+                        {% else %}
+                            <i class="fas fa-image" style="font-size: 5rem; color: #ccc;"></i>
+                        {% endif %}
+                    </div>
+                    
+                    {% if product.images|length > 1 %}
+                        <div class="d-flex gap-2 mt-3">
+                            {% for image in product.images %}
+                                <img src="{{ image.image_url }}" alt="{{ product.name }}" height="60" class="border rounded cursor-pointer" style="cursor: pointer;" onclick="changeImage('{{ image.image_url }}')">
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Product Info -->
+        <div class="col-md-7">
+            <!-- Title & Rating -->
+            <h1 class="mb-2">{{ product.name }}</h1>
+            
+            <div class="mb-3">
+                <span class="stars text-warning me-2">
+                    {% for i in range(5) %}
+                        {% if i < product.rating|int %}
+                            <i class="fas fa-star"></i>
+                        {% else %}
+                            <i class="far fa-star"></i>
+                        {% endif %}
+                    {% endfor %}
+                </span>
+                <span class="text-muted">({{ product.review_count }} customer reviews)</span>
+            </div>
+
+            <!-- Stock Status -->
+            {% if product.stock_quantity > 0 %}
+                <div class="alert alert-success mb-3">
+                    <i class="fas fa-check-circle"></i> In Stock
+                    {% if product.stock_quantity < 5 %}
+                        <strong class="ms-2">Only {{ product.stock_quantity }} left!</strong>
+                    {% endif %}
+                </div>
+            {% else %}
+                <div class="alert alert-danger mb-3">
+                    <i class="fas fa-times-circle"></i> Out of Stock
+                </div>
+            {% endif %}
+
+            <!-- Pricing -->
+            <div class="card mb-4 bg-light">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-6">
+                            <span class="text-muted" style="font-size: 0.9rem;">Price</span>
+                            <h2 class="mb-0 text-primary">₹{{ product.discounted_price }}</h2>
+                            {% if product.discount_percent > 0 %}
+                                <small class="text-muted text-decoration-line-through">₹{{ product.price }}</small>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            {% if product.discount_percent > 0 %}
+                                <span class="badge bg-danger p-2">
+                                    Save ₹{{ product.savings }} ({{ product.discount_percent }}% OFF)
+                                </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Brand & Category -->
+            <div class="mb-4">
+                <p>
+                    <strong>Brand:</strong> 
+                    {% if product.brand %}
+                        <a href="/products?brand={{ product.brand.slug }}" class="text-decoration-none">{{ product.brand.name }}</a>
+                    {% else %}
+                        Not specified
+                    {% endif %}
+                </p>
+                <p>
+                    <strong>Category:</strong> 
+                    <a href="/products?category={{ product.category.slug }}" class="text-decoration-none">{{ product.category.name }}</a>
+                </p>
+                {% if product.sku %}
+                    <p><strong>SKU:</strong> {{ product.sku }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Description -->
+            {% if product.description %}
+                <div class="mb-4">
+                    <h5>Description</h5>
+                    <p>{{ product.description }}</p>
+                </div>
+            {% endif %}
+
+            <!-- Actions -->
+            <div class="d-grid gap-2 mb-4">
+                {% if product.stock_quantity > 0 %}
+                    <button class="btn btn-primary btn-lg" onclick="addToCart('{{ product.id }}')">
+                        <i class="fas fa-shopping-cart me-2"></i> Add to Cart
+                    </button>
+                    <button class="btn btn-outline-secondary btn-lg">
+                        <i class="fas fa-credit-card me-2"></i> Buy Now
+                    </button>
+                {% else %}
+                    <button class="btn btn-secondary btn-lg" disabled>
+                        <i class="fas fa-ban me-2"></i> Out of Stock
+                    </button>
+                {% endif %}
+            </div>
+
+            <!-- Wishlist & Share -->
+            <div class="d-flex gap-2 mb-4">
+                <button class="btn btn-outline-danger flex-grow-1" onclick="addToWishlist('{{ product.id }}')">
+                    <i class="fas fa-heart me-2"></i> Add to Wishlist
+                </button>
+                <button class="btn btn-outline-secondary" onclick="shareProduct()">
+                    <i class="fas fa-share-alt me-2"></i> Share
+                </button>
+            </div>
+
+            <!-- Trust Badges -->
+            <div class="alert alert-info">
+                <small>
+                    <i class="fas fa-check-circle text-success"></i> Genuine Product<br>
+                    <i class="fas fa-truck text-success"></i> Free Delivery on orders above ₹499<br>
+                    <i class="fas fa-shield-alt text-success"></i> Secure Checkout & 30-Day Return
+                </small>
+            </div>
+
+            <!-- Delivery Info -->
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="mb-0">Delivery Information</h6>
+                </div>
+                <div class="card-body small">
+                    <p class="mb-2"><strong>Estimated Delivery:</strong> 3-5 business days</p>
+                    <p class="mb-2"><strong>Shipping Cost:</strong> ₹50 (Free on orders > ₹499)</p>
+                    <p class="mb-0"><strong>Cash on Delivery:</strong> Available</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Related Products -->
+    {% if related_products %}
+        <section class="mt-5 pt-5 border-top">
+            <h3 class="section-title mb-4">Related Products</h3>
+            
+            <div class="product-grid">
+                {% for related_product in related_products %}
+                    <div class="product-card">
+                        <div class="product-image">
+                            {% if related_product.images %}
+                                <img src="{{ related_product.images[0].image_url }}" alt="{{ related_product.name }}" loading="lazy">
+                            {% else %}
+                                <i class="fas fa-image" style="font-size: 3rem; color: #ccc;"></i>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="product-info">
+                            <h3 class="product-name">{{ related_product.name }}</h3>
+                            
+                            <div class="product-price">
+                                <span class="price-current">₹{{ related_product.discounted_price }}</span>
+                                {% if related_product.discount_percent > 0 %}
+                                    <span class="price-original">₹{{ related_product.price }}</span>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="product-actions">
+                                <button class="btn-add-cart" onclick="addToCart('{{ related_product.id }}')">
+                                    Add
+                                </button>
+                                <a href="/product/{{ related_product.slug }}" class="btn-buy-now text-decoration-none">
+                                    View
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </section>
+    {% endif %}
+
+    <!-- Reviews Section -->
+    {% if reviews %}
+        <section class="mt-5 pt-5 border-top">
+            <h3 class="section-title mb-4">Customer Reviews</h3>
+            
+            <div class="row">
+                <div class="col-md-3 mb-4">
+                    <div class="text-center">
+                        <h2>{{ "%.1f"|format(product.rating) }}</h2>
+                        <div class="text-warning">
+                            {% for i in range(5) %}
+                                {% if i < product.rating|int %}
+                                    <i class="fas fa-star"></i>
+                                {% else %}
+                                    <i class="far fa-star"></i>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                        <small class="text-muted">Based on {{ product.review_count }} reviews</small>
+                    </div>
+                </div>
+                
+                <div class="col-md-9">
+                    {% for review in reviews %}
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <div>
+                                        <h6 class="mb-1">{{ review.title }}</h6>
+                                        <small class="text-muted">by {{ review.user.username }}</small>
+                                    </div>
+                                    <span class="text-warning">
+                                        {% for i in range(review.rating) %}
+                                            <i class="fas fa-star"></i>
+                                        {% endfor %}
+                                    </span>
+                                </div>
+                                <p class="mb-2">{{ review.comment }}</p>
+                                <small class="text-muted">{{ review.created_at.strftime('%d %b %Y') }}</small>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </section>
+    {% endif %}
+</div>
+
+<script>
+function changeImage(imageUrl) {
+    document.getElementById('mainImage').src = imageUrl;
+}
+
+function shareProduct() {
+    const url = window.location.href;
+    const text = "{{ product.name }} - {{ product.discounted_price }}";
+    
+    if (navigator.share) {
+        navigator.share({
+            title: text,
+            url: url
+        }).catch(err => console.log(err));
+    } else {
+        copyToClipboard(url);
+    }
+}
+</script>
+{% endblock %}

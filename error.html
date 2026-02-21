@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}Error - DEV Mobile & Services{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 text-center">
+            <div class="mb-4">
+                <i class="fas fa-exclamation-circle fa-5x text-danger"></i>
+            </div>
+            
+            <h1 class="display-5 mb-3">Oops! Something Went Wrong</h1>
+            
+            <p class="lead text-muted mb-4">
+                {{ error or 'An unexpected error occurred. Please try again later.' }}
+            </p>
+            
+            <div class="mb-4">
+                <a href="/" class="btn btn-primary btn-lg me-2">
+                    <i class="fas fa-home"></i> Go to Home
+                </a>
+                <button onclick="history.back()" class="btn btn-outline-secondary btn-lg">
+                    <i class="fas fa-arrow-left"></i> Go Back
+                </button>
+            </div>
+            
+            <hr>
+            
+            <p class="text-muted small">
+                <strong>Error Code:</strong> {{ error_code or 'Unknown' }}<br>
+                <strong>Time:</strong> {{ now.strftime('%d %b %Y, %H:%M:%S') if now else 'N/A' }}
+            </p>
+            
+            <p class="mt-4 text-muted">
+                <i class="fas fa-phone"></i> Need help? Contact us at <strong>+91 98765 43210</strong>
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}
